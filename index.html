@@ -1,0 +1,52 @@
+<html xlmns="httpL//www.w3.org/1999/xhtml">
+
+	<head>
+		<!--<script type="text/javascript" src="scripts/jquery/jquery-2.0.3.js"></script>-->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<link rel=stylesheet href="scripts/css/mainCSS.css" type="text/css"/>
+		<meta http-equiv="Content-Type" contents="text/html; charset=utf-8"/>
+
+		<link href='http://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+		<title>Increment.</title>
+	</head>
+
+	<body>
+		<div id="contentWrapper" style="display:none">
+			<div class="window" id="mainGradient"></div>
+			<div class="window" id="buttons">
+				<div align="left" style="margin-left: 2px; display: none" id="gatherButtons">Gather</div>
+					<div id="woodClick_button" class="button" onclick="woodClick()"><div class="progress"></div>Gather Wood</div>
+					<div id="stoneClick_button" class="button" onclick="stoneClick()"><div class="progress"></div>Gather Rocks</div>
+					<div id="hunt_button" class="button" onclick="hunt()"><div class="progress"></div>Hunt</div>
+					<div id="fireStart_button" class="button" onclick="fireStart()">Start Fire</div>
+					<div id="fireStoke_button" class="button" onclick="fireStoke()"><div class="progress"></div>Stoke Fire</div>
+				<div align="left" style="margin-left: 2px; display: none" id="craftButtons">Craft</div>
+					<div id="craftAxe_button" class="button" onclick="craftAxe()">Stone Axe</div>
+					<div id="craftShovel_button" class="button" onclick="craftShovel()">Stone Shovel</div>
+					<div id="craftSpear_button" class="button" onclick="craftSpear()">Stone Spear</div>
+				<div align="left" style="margin-left: 2px; display: none" id="buildButtons">Build</div>
+					<div id="buildHut_button" class="button" onclick="buildHut()"><div class="progress"></div>Hut</div>
+					<div id="buildLumberyard_button" class="button" onclick="buildLumberyard()"><div class="progress"></div>Lumberyard</div>
+					<div id="buildQuarry_button" class="button" onclick="buildQuarry()"><div class="progress"></div>Quarry</div>
+			</div>
+			<div class="window" id="main"><div id="mainPlaceholder"></div></div>
+			<!--<div class="window" id="main"></div>-->
+			<div class="window" id="status">
+				Status<br>
+				<div id="statusWood">Wood: <span id="wood"></span><span id="woodSpeed"></span><br></div>
+				<div id="statusStone">Stone: <span id="stone"></span><span id="stoneSpeed"></span><br></div>
+				<div id="statusFood">Food: <span id="food"></span><span id="foodSpeed"></span><br></div>
+				<div id="statusIron" style="display:none">Iron: <span id="iron"></span><span id="ironSpeed"></span><br></div>
+				<div id="statusPopulation" style="display:none">Population: <span id="population"></span>/<span id="populationMax"></span><br></div>
+				<div id="statusPopulationIdle" style="display:none">Idle Workers: <span id="populationIdle"></span><br></div>
+				<div id="statusTechnologies" style="display:none"><br>Tech:<br></div>
+					<div id="statusTechnologies_stoneAxe" style="display:none">Stone Axes</div>
+					<div id="statusTechnologies_stoneShovel" style="display:none">Stone Shovels</div>
+					<div id="statusTechnologies_stoneSpear" style="display:none">Stone Spears</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="increment.js"></script>
+	</body>
+
+</html>

@@ -1,1 +1,2 @@
-# sean-fraley.github.io
+# increment
+Generic Incremental Game
