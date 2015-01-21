@@ -515,6 +515,7 @@ function travelers(){
     var chance = mathRandom(1,100);
     if(player.fire<1){
         chance = 0;
+        return;
     }
     //Number of travelers that appear
     //Equal to random( 1 - popMax/2 ) rounded down
@@ -564,7 +565,9 @@ $(document).ready(function(){
     $("#stoneClick_button").show();
     appendToMain("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>",0,0);
     appendToMain("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>",0,0);
-    appendToMain("You wake up alone in a <green>forest</green>.",0,0);
+	if(!$.cookie("player")){
+		appendToMain("You wake up alone in a <green>forest</green>.",0,0);
+	}
     $("#contentWrapper").fadeIn(1000);
     return;
 });
@@ -698,6 +701,7 @@ function gameDraw(){
     }
 
     //TECH DRAW
+
     if(player.stoneAxe > 0 || player.stoneShovel > 0){
         $("#statusTechnologies").fadeIn(1000);
     }
@@ -723,7 +727,7 @@ function gameDraw(){
         $("#fireStoke_button").fadeIn(1000);
     }
     if(player.fire === 0 && player.fireStarted === 1){
-        appendToMain("<b>The <red>fire</red> dies</b>.",function(){
+        appendToMain("<b>The <red>fire</red> dies</b>.",0,1000,function(){
             $("#fireStoke_button").fadeOut(1000);
         });
         player.fireStarted = 0;
