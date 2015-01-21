@@ -40,19 +40,13 @@ var player= new function(){
     this.quarries          = 0;
 };
 
-//$.cookie("player", JSON.stringify(player));
-
-//var playerCookie = $.parseJSON($.cookie("player"));
-
-//alert($.cookie("player"));
-//alert(playerCookie)
 
 if($.cookie("player")){
-	alert("$.cookie('player') found");
+	//DEBUG alert("$.cookie('player') found");
 	player = $.parseJSON($.cookie("player"));
 }
 else{
-	//alert("$.cookie('player') not found");
+	//DEBUG alert("$.cookie('player') not found");
 }
 
 
