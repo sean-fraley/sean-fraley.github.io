@@ -1,4 +1,26 @@
 //////////////////////
+// COOKIES & SAVING //
+//////////////////////
+function set_cookie ( cookie_name, cookie_value, lifespan_in_days, valid_domain )
+{
+  // http://www.thesitewizard.com/javascripts/cookies.shtml
+  var domain_string = valid_domain ? ("; domain=" + valid_domain) : '' ;
+  document.cookie = cookie_name + "=" + encodeURIComponent( cookie_value ) +
+      "; max-age=" + 60 * 60 * 24 * lifespan_in_days +
+      "; path=/" + domain_string ;
+}
+function get_cookie ( cookie_name )
+{
+  // http://www.thesitewizard.com/javascripts/cookies.shtml
+  var cookie_string = document.cookie ;
+  if (cookie_string.length != 0) {
+    var cookie_value = cookie_string.match ( '(^|;)[\s]*' + cookie_name + '=([^;]*)' );
+    return decodeURIComponent ( cookie_value[2] ) ;
+  }
+  return '' ;
+}
+
+//////////////////////
 // GLOBAL VARIABLES //
 //////////////////////
 var FPS = 10;
@@ -36,9 +58,25 @@ var player= new function(){
     this.populationIdle    = 0;
 
     this.huts              = 0;
-    this.lumberyards            = 0;
+    this.lumberyards       = 0;
     this.quarries          = 0;
 };
+
+//$.cookie("player", JSON.stringify(player));
+
+//var playerCookie = $.parseJSON($.cookie("player"));
+
+//alert($.cookie("player"));
+//alert(playerCookie)
+
+if($.cookie("player")){
+	alert("$.cookie('player') found");
+	player = $.parseJSON($.cookie("player"));
+}
+else{
+	//alert("$.cookie('player') not found");
+}
+
 
 var game = new function(){
     this.frameNum = 0;
@@ -65,7 +103,7 @@ function text_fadeIn(elementId,textToFade,delay,fadeSpeed,func){
             console.log("           Execute callback");
             func();
         });
-    }
+    } 
 }
 
 function text_fadeInByChar(elementId,textToFade,delay,color,doBreak,printSpeed,fadeInSpeed,func){
@@ -602,6 +640,9 @@ function gameUpdate(){
 
     game.frameNum++;
     //console.log("Update Frame: "+game.frameNum);
+    
+    $.cookie("player", JSON.stringify(player));
+
     gameDraw();
     return;
 }
