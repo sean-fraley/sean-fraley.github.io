@@ -1,0 +1,4 @@
+1/22/15
+Minor changes
+	increment.js: Add message "Welcome back." for returning players who have a saved cookie.
+	mainCSS.css: Implement <yellow> tag

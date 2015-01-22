@@ -578,6 +578,9 @@ $(document).ready(function(){
 	if(!$.cookie("player")){
 		appendToMain("You wake up alone in a <green>forest</green>.",0,0);
 	}
+    else{
+        appendToMain("<yellow>Welcome back.</yellow>",0,0);
+    }
     $("#contentWrapper").fadeIn(1000);
     return;
 });
