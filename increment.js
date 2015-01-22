@@ -2,6 +2,7 @@
 // GLOBAL VARIABLES //
 //////////////////////
 var FPS = 10;
+var saving = 1;
 
 var player= new function(){
     this.wood              = 0;
@@ -509,6 +510,15 @@ function buildQuarry(){
 }
 
 ////////////////
+// DELETE SAVE//
+////////////////
+function deleteSave(){
+    $.removeCookie("player");
+    saving = 0;
+    return;
+}
+
+////////////////
 // POPULATION //
 ////////////////
 function travelers(){
@@ -616,7 +626,10 @@ function gameUpdate(){
     game.frameNum++;
     //console.log("Update Frame: "+game.frameNum);
     
-    $.cookie("player", JSON.stringify(player));
+    //SAVE PLAYER OBJECT AS COOKIE
+    if(saving === 1){
+        $.cookie("player", JSON.stringify(player));
+    }
 
     gameDraw();
     return;
@@ -771,5 +784,8 @@ function gameDraw(){
     if(player.wood >= 100 && player.stone >= 150 && player.fire > 0 && player.populationMax > 0){
         $("#buildQuarry_button").fadeIn(1000);
     }
+
+    //DELETE SAVE BUTTON
+    $("#deleteSaveButton").fadeIn(1000)
     return;
 }

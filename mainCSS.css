@@ -107,6 +107,14 @@ body{
     opacity:.3;
 }
 
+#deleteSaveButton{
+	position:absolute;
+	text-align: left;
+	margin-left: 2px;
+	bottom:0;
+	display:none;
+}
+
 .red{
 	color: red;
 }
