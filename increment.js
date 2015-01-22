@@ -37,6 +37,9 @@ var player= new function(){
     this.populationIdle    = 0;
 
     this.huts              = 0;
+    this.largeHuts         = 0;
+    this.houses            = 0;
+    this.longHouses        = 0;
     this.lumberyards       = 0;
     this.quarries          = 0;
 };
@@ -425,15 +428,16 @@ function buildHut(){
         appendToMain("You don't have enough wood to build a hut.");
         return;
     }
-    if(player.stone < 100){
+    else if(player.stone < 100){
         appendToMain("You don't have enough stone to build a hut.");
         return;
     }
-    if(player.fire < 1 ){
-        appendToMain("You need to have a <red>fire</red> to build a hut.");
-        return;
-    }
-    if(player.wood >= 100 && player.stone >= 100 && player.fire > 0){
+    //if(player.fire < 1 ){
+    //    appendToMain("You need to have a <red>fire</red> to build a hut.");
+    //    return;
+    //}
+    //if(player.wood >= 100 && player.stone >= 100 && player.fire > 0){
+    else{
         appendToMain("You construct a hut. The primitive shelter will house a couple people. <i><gray>+2 max population</gray></i>");
         player.wood -= 100;
         player.stone -= 100;
@@ -442,6 +446,72 @@ function buildHut(){
         $("#buildHut_button .progress").animate({width:"100%"}, 5000, function(){
             $("#buildHut_button .progress").css("width","0px");
             document.getElementById("buildHut_button").onclick = buildHut;
+        });
+    }
+    return;
+}
+function buildLargeHut(){
+    if(player.wood < 190){
+        appendToMain("You don't have enough wood to build a large hut.");
+        return;
+    }
+    else if(player.stone < 190){
+        appendToMain("You don't have enough stone to build a large hut.");
+        return;
+    }
+    else{
+        appendToMain("You construct a large hut. It will house a few people. <i><gray>+4 max population</gray></i>");
+        player.wood -= 190;
+        player.stone -= 190;
+        player.largeHuts += 1;
+        document.getElementById("buildLargeHut_button").onclick = "";
+        $("#buildLargeHut_button .progress").animate({width:"100%"}, 10000, function(){
+            $("#buildLargeHut_button .progress").css("width","0px");
+            document.getElementById("buildLargeHut_button").onclick = buildLargeHut;
+        });
+    }
+    return;
+}
+function buildHouse(){
+    if(player.wood < 380){
+        appendToMain("You don't have enough wood to build a house.");
+        return;
+    }
+    else if(player.stone < 380){
+        appendToMain("You don't have enough stone to build a house.");
+        return;
+    }
+    else{
+        appendToMain("You construct a house. It will be a comfortable home to a larger family. <i><gray>+8 max population</gray></i>");
+        player.wood -= 380;
+        player.stone -= 380;
+        player.houses += 1;
+        document.getElementById("buildHouse_button").onclick = "";
+        $("#buildHouse_button .progress").animate({width:"100%"}, 20000, function(){
+            $("#buildHouse_button .progress").css("width","0px");
+            document.getElementById("buildHouse_button").onclick = buildHouse;
+        });
+    }
+    return;
+}
+function buildLongHouse(){
+    if(player.wood < 760){
+        appendToMain("You don't have enough wood to build a long house.");
+        return;
+    }
+    else if(player.stone < 760){
+        appendToMain("You don't have enough stone to build a long house.");
+        return;
+    }
+    else{
+        appendToMain("You construct a long house. A small village could live in here! <i><gray>+16 max population</gray></i>");
+        player.wood -= 760;
+        player.stone -= 760;
+        player.longHouses += 1;
+        document.getElementById("buildLongHouse_button").onclick = "";
+        $("#buildLongHouse_button .progress").animate({width:"100%"}, 40000, function(){
+            $("#buildLongHouse_button .progress").css("width","0px");
+            document.getElementById("buildLongHouse_button").onclick = buildLongHouse;
         });
     }
     return;
@@ -455,10 +525,10 @@ function buildLumberyard(){
         appendToMain("You don't have enough stone to build a <green>lumberyard</green>.");
         return;
     }
-    if(player.fire < 1){
-        appendToMain("You need to have a <red>fire</red> to build a <green>lumberyard</green>.");
-        return;
-    }
+    //if(player.fire < 1){
+    //    appendToMain("You need to have a <red>fire</red> to build a <green>lumberyard</green>.");
+    //    return;
+    //}
     if(player.populationIdle < 4){
         appendToMain("You need 4 workers to man the <green>lumberyard</green>.");
         return;
@@ -486,10 +556,10 @@ function buildQuarry(){
         appendToMain("You don't have enough stone to build a <gray>quarry</gray>.");
         return;
     }
-    if(player.fire < 1){
-        appendToMain("You need a <red>fire</red> to build a <gray>quarry</gray>.");
-        return;
-    }
+    //if(player.fire < 1){
+    //    appendToMain("You need a <red>fire</red> to build a <gray>quarry</gray>.");
+    //    return;
+    //}
     if(player.populationIdle < 4){
         appendToMain("You need 4 workers to man the <gray>quarry</gray>.");
         return;
@@ -623,7 +693,7 @@ function gameUpdate(){
     }
 
     //POPULATION UPDATE
-    player.populationMax = player.huts*2;
+    player.populationMax = player.huts*2 + player.largeHuts*4 + player.houses*8 + player.longHouses*16;
     player.populationIdle = player.population - player.populationWorking;
 
     game.frameNum++;
@@ -717,7 +787,6 @@ function gameDraw(){
     }
 
     //TECH DRAW
-
     if(player.stoneAxe > 0 || player.stoneShovel > 0){
         $("#statusTechnologies").fadeIn(1000);
     }
@@ -763,29 +832,69 @@ function gameDraw(){
     }
 
     //CRAFT BUTTONS
-    if(player.wood >= 30 && player.stone >= 30 && player.stoneAxe < 1 && player.stoneShovel < 1 && player.fire > 0){
+    if(player.wood >= 30 && player.stone >= 30 && (player.stoneAxe < 1 || player.stoneShovel < 1) && player.fire > 0){
         $("#craftButtons").fadeIn(1000);
+    }
+    else{
+        $("#craftButtons").fadeOut(1000);
     }
     if(player.wood >= 30 && player.stone >= 30 && player.stoneAxe < 1 && player.fire > 0){
         $("#craftAxe_button").fadeIn(1000);
     }
+    else{
+        $("#craftAxe_button").fadeOut(1000);
+    }
     if(player.wood >= 30 && player.stone >= 30 && player.stoneShovel < 1 && player.fire > 0){
         $("#craftShovel_button").fadeIn(1000);
+    }
+    else{
+        $("#craftShovel_button").fadeOut(1000);
     }
     if(player.wood >= 50 && player.stone >= 50 && player.stoneAxe > 0 && player.stoneSpear < 1 && player.fire > 0){
         $("#craftSpear_button").fadeIn(1000);
     }
+    else{
+        $("#craftSpear_button").fadeOut(1000);
+    }
 
     //BUILD BUTTONS
-    if(player.wood >= 100 && player.stone >= 100 && player.stoneAxe > 0 && player.fire > 0){
+    if(player.wood >= 100 && player.stone >= 100 && player.stoneAxe > 0){
         $("#buildButtons").fadeIn(1000);
         $("#buildHut_button").fadeIn(1000);
     }
-    if(player.wood >= 150 && player.stone >= 100 && player.fire > 0 && player.populationMax > 0){
+    else{
+        $("#buildButtons").fadeOut(1000);
+        $("#buildHut_button").fadeOut(1000);
+    }
+    if(player.wood >= 190 && player.stone >= 190 && player.huts >= 1){
+        $("#buildLargeHut_button").fadeIn(1000);
+    }
+    else{
+        $("#buildLargeHut_button").fadeOut(1000);
+    }
+    if(player.wood >= 380 && player.stone >= 380 && player.largeHuts >= 1){
+        $("#buildHouse_button").fadeIn(1000);
+    }
+    else{
+        $("#buildHouse_button").fadeOut(1000);
+    }
+    if(player.wood >= 760 && player.stone >= 760 && player.houses >= 1){
+        $("#buildLongHouse_button").fadeIn(1000);
+    }
+    else{
+        $("#buildLongHouse_button").fadeOut(1000);
+    }
+    if(player.wood >= 150 && player.stone >= 100 && player.populationMax > 0){
         $("#buildLumberyard_button").fadeIn(1000);
     }
-    if(player.wood >= 100 && player.stone >= 150 && player.fire > 0 && player.populationMax > 0){
+    else{
+        $("#buildLumberyard_button").fadeOut(1000);
+    }
+    if(player.wood >= 100 && player.stone >= 150 && player.populationMax > 0){
         $("#buildQuarry_button").fadeIn(1000);
+    }
+    else{
+        $("#buildQuarry_button").fadeOut(1000);
     }
 
     //DELETE SAVE BUTTON
