@@ -359,7 +359,7 @@ function craftAxe(){
         player.woodClickSpeed++;
         player.stone -= 30;
         player.stoneAxe = 1;
-        $("#woodClick_button").html("<div class='progress'></div>Chop Trees");
+        $("#woodClick_button").html("<div class='progress' style='width: 0px;'></div>Chop Trees");
         document.getElementById("craftAxe_button").onclick = "";
         $("#craftAxe_button").fadeOut(1000, function(){
             document.getElementById("craftAxe_button").onclick = craftAxe;
@@ -386,7 +386,7 @@ function craftShovel(){
         player.stone -= 30;
         player.stoneClickSpeed++;
         player.stoneShovel = 1;
-        $("#stoneClick_button").html("<div class='progress'></div>Dig Stone");
+        $("#stoneClick_button").html("<div class='progress' style='width: 0px;'></div>Dig Stone");
         document.getElementById("craftShovel_button").onclick = "";
         $("#craftShovel_button").fadeOut(1000,function(){
             document.getElementById("craftShovel_button").onclick = craftShovel;
@@ -650,6 +650,12 @@ $(document).ready(function(){
 	}
     else{
         appendToMain("<yellow>Welcome back.</yellow>",0,0);
+        if(player.stoneAxe > 0){
+    		$("#woodClick_button").html("<div class='progress' style='width: 0px;'></div>Chop Trees");
+    	}
+    	if(player.stoneShovel > 0){
+    		$("#stoneClick_button").html("<div class='progress' style='width: 0px;'></div>Dig Stone")
+	    }
     }
     $("#contentWrapper").fadeIn(1000);
     return;
@@ -701,7 +707,7 @@ function gameUpdate(){
     
     //SAVE PLAYER OBJECT AS COOKIE
     if(saving === 1){
-        $.cookie("player", JSON.stringify(player));
+        $.cookie("player", JSON.stringify(player), {expires: 30});
     }
 
     gameDraw();
