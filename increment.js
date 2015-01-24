@@ -23,6 +23,7 @@ var player= new function(){
     this.foodGatherers     = 0;
     this.huntClickSpeed    = 1;
     this.foodSpeed         = 0;
+    this.foodCost		   = 0;
 
     this.fire              = 0;
     this.fireStarted       = 0;
@@ -40,17 +41,16 @@ var player= new function(){
     this.largeHuts         = 0;
     this.houses            = 0;
     this.longHouses        = 0;
+    this.lodges			   = 0;
     this.lumberyards       = 0;
     this.quarries          = 0;
 };
 
 
 if($.cookie("player")){
-	//DEBUG alert("$.cookie('player') found");
 	player = $.parseJSON($.cookie("player"));
 }
 else{
-	//DEBUG alert("$.cookie('player') not found");
 }
 
 
@@ -411,6 +411,7 @@ function craftSpear(){
         appendToMain("You lash a <green>pole</green> and a <gray>crude spearhead</gray> together into a primitive <red>spear</red> <i><gray>-50 wood -50 stone</gray></i>.");
         player.wood -= 50;
         player.stone -= 50;
+        player.huntClickSpeed++;
         player.stoneSpear = 1;
         document.getElementById("craftSpear_button").onclick = "";
         $("#craftSpear_button").fadeOut(1000,function(){
@@ -432,11 +433,6 @@ function buildHut(){
         appendToMain("You don't have enough stone to build a hut.");
         return;
     }
-    //if(player.fire < 1 ){
-    //    appendToMain("You need to have a <red>fire</red> to build a hut.");
-    //    return;
-    //}
-    //if(player.wood >= 100 && player.stone >= 100 && player.fire > 0){
     else{
         appendToMain("You construct a hut. The primitive shelter will house a couple people. <i><gray>+2 max population</gray></i>");
         player.wood -= 100;
@@ -516,6 +512,32 @@ function buildLongHouse(){
     }
     return;
 }
+function buildLodge(){
+	if(player.wood < 100){
+		appendToMain("You don't have enough wood to build a <yellow>hunting lodge</yellow>.");
+		return;
+	}
+	else if(player.stone < 100){
+		appendToMain("You don't have enough stone to build a <yellow>hunting lodge</yellow>.");
+		return;
+	}
+	else if(player.populationIdle < 4){
+		appendToMain("You need 4 workers to man the <yellow>hunting lodge</yellow>.");
+		return;
+	}
+	else{
+		appendToMain("You select an area frequented by small game and construct a <yellow>hunting lodge</yellow>.");
+		player.wood -= 100;
+		player.stone -= 100;
+		player.lodges += 1;
+		player.populationWorking += 4;
+		document.getElementById("buildLodge_button").onclick = "";
+		$("#buildLodge_button .progress").animate({width:"100%"}, 5000, function(){
+			$("#buildLodge_button .progress").css("width","0px");
+			document.getElementById("buildLodge_button").onclick = buildLodge;
+		});
+	}
+}
 function buildLumberyard(){
     if(player.wood < 150){
         appendToMain("You don't have enough wood to build a <green>lumberyard</green>.");
@@ -525,15 +547,11 @@ function buildLumberyard(){
         appendToMain("You don't have enough stone to build a <green>lumberyard</green>.");
         return;
     }
-    //if(player.fire < 1){
-    //    appendToMain("You need to have a <red>fire</red> to build a <green>lumberyard</green>.");
-    //    return;
-    //}
     if(player.populationIdle < 4){
         appendToMain("You need 4 workers to man the <green>lumberyard</green>.");
         return;
     }
-    if(player.wood >= 150 && player.stone >= 100 && player.fire > 0 && player.populationIdle >= 4){
+    if(player.wood >= 150 && player.stone >= 100 && player.populationIdle >= 4){
         appendToMain("After selecting a heavily wooded location you build a <green>lumberyard</green> for gathering timber.");
         player.wood -= 150;
         player.stone -= 100;
@@ -556,16 +574,15 @@ function buildQuarry(){
         appendToMain("You don't have enough stone to build a <gray>quarry</gray>.");
         return;
     }
-    //if(player.fire < 1){
-    //    appendToMain("You need a <red>fire</red> to build a <gray>quarry</gray>.");
-    //    return;
-    //}
     if(player.populationIdle < 4){
         appendToMain("You need 4 workers to man the <gray>quarry</gray>.");
         return;
     }
-    if(player.wood >= 100 && player.stone >= 150 && player.fire > 0 && player.populationIdle >= 4){
+    if(player.wood >= 100 && player.stone >= 150 && player.populationIdle >= 4){
         appendToMain("You select a large rocky area and construct the <gray>stone quarry</gray>.");
+        if(player.quarries < 1){
+        	setInterval(findIron,30000); //EVERY 30 SECONDS RANDOM CHANCE FOR QUARRIES TO FIND IRON
+        }
         player.wood -= 100;
         player.stone -= 150;
         player.quarries += 1;
@@ -593,13 +610,12 @@ function deleteSave(){
 ////////////////
 function travelers(){
     var chance = mathRandom(1,100);
-    if(player.fire<1){
+    if(player.fire < 1 || player.food < 1){
         chance = 0;
         return;
     }
     //Number of travelers that appear
-    //Equal to random( 1 - popMax/2 ) rounded down
-    var numTravelers = Math.floor(mathRandom(1,(player.populationMax/2)));
+    var numTravelers = Math.floor(mathRandom(1,(player.populationMax)));
     if(numTravelers > player.populationMax-player.population){
         numTravelers = player.populationMax-player.population;
     }
@@ -611,7 +627,7 @@ function travelers(){
         buf = "<b>1 traveler happens uppon your settlement.</b>";
     }
 
-        if (chance > 60){
+        if (chance > 57){
             appendToMain(buf,0,1000,function(){
                 if(player.population < player.populationMax){
                     buf = "<b>Seeing that you have space available they decide to join you. </b><i><gray>+"+numTravelers+" population</i></gray>";
@@ -631,6 +647,24 @@ function travelers(){
     return;
 }
 
+function findIron(){
+	//THIS RUNS BY DEFAULT EVERY 30 SECONDS
+	//EACH STONE GATHERER (4 PER QUARRY) HAS A 3% CHANCE TO FIND 1 IRON
+	if(player.quarries > 0){
+    	foundIron = 0
+    	for(i = 0; i < player.stoneGatherers; i++){
+        	if(mathRandom(1,100)>97){
+    	    	foundIron += 1;
+            };
+    	}
+        if(foundIron > 0){
+        	appendToMain("Your quarry workers have found some <gray><b>iron</b></gray>! <i><gray>+"+foundIron+" iron</gray></i>",0,1000);
+        	player.iron += foundIron;
+        }
+    }
+    return;
+}
+
 $(document).keydown(function (eventObject) {
     return;
 });
@@ -639,7 +673,7 @@ $(document).ready(function(){
     game.frameNum = 0;
     console.log("PAGE: document.ready()");
     setInterval(gameUpdate,1000/FPS); //MAIN GAME UPDATE & DRAW LOOP
-    setInterval(travelers,60000); //RANDOM POPULATION INCREASE, EVERY 60 SECONDS POSSIBLE TRAVELERS APPEAR
+    setInterval(travelers,30000); //RANDOM POPULATION INCREASE, EVERY 30 SECONDS POSSIBLE TRAVELERS APPEAR
     $("#gatherButtons").show();
     $("#woodClick_button").show();
     $("#stoneClick_button").show();
@@ -676,18 +710,25 @@ function gameUpdate(){
     player.stoneGatherers = player.quarries * 2;
     player.stoneSpeed = player.stoneGatherers;
     player.stone += player.stoneSpeed/FPS;
-    if(player.quarries > 0){
-        if(mathRandom(1,10000)>9990){
-            appendToMain("Your quarry workers have found a chunk of <gray><b>iron</b></gray>!",0,1000,function(){
-                player.iron += 1;
-            });
-        }
-    }
 
     //FOOD Update
-    //player.foodGatherers = player.lumberyards *
+    player.foodGatherers = player.lodges * 3;
     player.foodSpeed = player.foodGatherers;
     player.food += player.foodSpeed/FPS;
+    //hunting lodge will gen +3/s for 4 workers
+    //12 workers consume 2 food per second
+    //So each worker consumes 1/6 food per second (.1666)
+    player.foodCost = player.population/12*2
+    if(player.food - player.foodCost/FPS < 0){
+    	//calculate difference
+    	foodDifference = player.foodCost - player.foodSpeed;
+    	foodDifference = foodDifference/2*12;
+    	player.population -= foodDifference;
+    	appendToMain(foodDifference+" people have <red>starved to death</red>!",0,1000)
+    }
+    else{
+    	player.food -= player.foodCost/FPS
+    }
 
     //IRON UPDATE
     player.ironSpeed = player.ironGatherers;
@@ -736,13 +777,15 @@ function gameDraw(){
     //STONE DRAW
     if(player.stone % 1 != 0){
         $("#status #stone").html(player.stone.toFixed(1));
-    } else{
+    } 
+    else{
         $("#status #stone").html(player.stone);
     }
     if(player.stoneSpeed > 0 ){
         if(player.stoneSpeed % 1 != 0){
             $("#status #stoneSpeed").html("<i><gray> +"+player.stoneSpeed.toFixed(1)+"/s</gray></i>");
-        } else{
+        } 
+        else{
             $("#status #stoneSpeed").html("<i><gray> +"+player.stoneSpeed+"/s</gray></i>");
         }
     }
@@ -750,15 +793,31 @@ function gameDraw(){
     //FOOD DRAW
     if(player.food % 1 != 0){
         $("#status #food").html(player.food.toFixed(1));
-    } else{
+    } 
+    else{
         $("#status #food").html(player.food);
     }
-    if(player.foodSpeed > 0){
-        if(player.foodSpeed % 1 != 0){
-            $("#status #foodSpeed").html("<i><gray> +"+player.foodSpeed.toFixed(1)+"/s</gray></i>");
-        } else{
-            $("#status #foodSpeed").html("<i><gray> +"+player.foodSpeed+"/s</gray></i>");
-        }
+	foodTotal = player.foodSpeed - player.foodCost;
+	if(foodTotal != 0){
+    	if(foodTotal % 1 != 0){
+        	if(foodTotal < 0){
+    			$("#status #foodSpeed").html("<i><gray> "+foodTotal.toFixed(1)+"/s</gray></i>");
+    		}
+    		else{
+            	$("#status #foodSpeed").html("<i><gray> +"+foodTotal.toFixed(1)+"/s</gray></i>");
+    		}
+    	} 
+    	else{
+        	if(foodTotal < 0){
+        		$("#status #foodSpeed").html("<i><gray> "+foodTotal+"/s</gray></i>");
+    		}
+    		else{
+        		$("#status #foodSpeed").html("<i><gray> +"+foodTotal+"/s</gray></i>");
+    		}
+    	}
+    }
+    else{
+    	$("#status #foodSpeed").html("");
     }
 
     //HUNT DRAW
@@ -838,12 +897,8 @@ function gameDraw(){
     }
 
     //CRAFT BUTTONS
-    if(player.wood >= 30 && player.stone >= 30 && (player.stoneAxe < 1 || player.stoneShovel < 1) && player.fire > 0){
+    //if(player.wood >= 30 && player.stone >= 30 && (player.stoneAxe < 1 || player.stoneShovel < 1) && player.fire > 0){
         $("#craftButtons").fadeIn(1000);
-    }
-    else{
-        $("#craftButtons").fadeOut(1000);
-    }
     if(player.wood >= 30 && player.stone >= 30 && player.stoneAxe < 1 && player.fire > 0){
         $("#craftAxe_button").fadeIn(1000);
     }
@@ -864,13 +919,12 @@ function gameDraw(){
     }
 
     //BUILD BUTTONS
+    $("#buildButtons").fadeIn(1000);
     if(player.wood >= 100 && player.stone >= 100 && player.stoneAxe > 0){
-        $("#buildButtons").fadeIn(1000);
-        $("#buildHut_button").fadeIn(1000);
+    	$("#buildHut_button").fadeIn(1000);
     }
     else{
-        $("#buildButtons").fadeOut(1000);
-        $("#buildHut_button").fadeOut(1000);
+    	$("#buildHut_button").fadeOut(1000);
     }
     if(player.wood >= 190 && player.stone >= 190 && player.huts >= 1){
         $("#buildLargeHut_button").fadeIn(1000);
@@ -890,13 +944,19 @@ function gameDraw(){
     else{
         $("#buildLongHouse_button").fadeOut(1000);
     }
-    if(player.wood >= 150 && player.stone >= 100 && player.populationMax > 0){
+    if(player.stone >= 100 && player.wood >= 100 && player.stoneSpear > 0 && player.populationMax > 0){
+    	$("#buildLodge_button").fadeIn(1000);
+    }
+    else{
+    	$("#buildLodge_button").fadeOut(1000);
+    }
+    if(player.wood >= 150 && player.stone >= 100 && player.stoneAxe > 0 && player.populationMax > 0){
         $("#buildLumberyard_button").fadeIn(1000);
     }
     else{
         $("#buildLumberyard_button").fadeOut(1000);
     }
-    if(player.wood >= 100 && player.stone >= 150 && player.populationMax > 0){
+    if(player.wood >= 100 && player.stone >= 150 && player.stoneShovel > 0 && player.populationMax > 0){
         $("#buildQuarry_button").fadeIn(1000);
     }
     else{
